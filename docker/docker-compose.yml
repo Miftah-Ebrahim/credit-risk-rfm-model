@@ -3,10 +3,12 @@ version: '3.8'
 
 services:
   api:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./models:/app/models  # Persist models
+      - ../models:/app/models
     environment:
       - ENV=production
