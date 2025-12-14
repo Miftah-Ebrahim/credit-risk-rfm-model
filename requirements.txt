@@ -1,3 +1,4 @@
+
 pandas
 numpy
 matplotlib
@@ -9,4 +10,3 @@ uvicorn
 mlflow
 pytest
 pydantic
-jupyter
