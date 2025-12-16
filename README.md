@@ -35,18 +35,43 @@ This project delivers an **end-to-end Machine Learning System** that constructs 
 ### 📂 Repository Structure
 ```bash
 .
-├── 🚀 api/                 # Production-grade FastAPI endpoints
-│   ├── main.py
-│   └── schemas.py          # Strict Pydantic validation
-├── 📊 dashboard/           # Graphical EDA outputs
-├── 💾 data/                # Data Lake (Raw & Processed)
-├── 🐳 docker/              # Containerization assets
-├── 🧠 src/                 # Core Logic
-│   ├── features.py         # RFM & WoE Feature Store
-│   ├── train.py            # Pipeline Training & Registry
-│   └── predict.py          # Inference Engine
-├── 🧪 tests/               # Pytest Suite
-└── 📑 final_report.md      # Detailed technical documentation
+├── 🚀 api/                     # Production-grade FastAPI endpoints
+│   ├── main.py                 # Application Entry Point (Routes)
+│   └── schemas.py              # Strict Pydantic Data Models (Input/Output)
+│
+├── 📊 dashboard/               # Analytical Assets & Visualizations
+│   ├── daily_transaction_volume.png
+│   ├── feature_correlation_matrix.png
+│   └── ... (EDA outputs)
+│
+├── 💾 data/                    # Data Lake Architecture
+│   ├── raw/                    # Immutable Ingestion Layer (CSV)
+│   └── processed/              # Feature Store (Cleaned & Aggregated)
+│
+├── 🐳 docker/                  # Infrastructure as Code
+│   ├── Dockerfile              # API Container Specification
+│   └── docker-compose.yml      # Multi-Service Orchestration
+│
+├── 🧠 src/                     # Core Machine Learning Logic
+│   ├── data_processing.py      # ETL Orchestrator (Cleaning -> Features)
+│   ├── features.py             # Feature Engineering (RFM, Temporal, WoE)
+│   ├── train.py                # Pipeline Construction & MLflow Registry
+│   └── predict.py              # Model Loader & Inference Wrapper
+│
+├── 📓 notebooks/               # Experimental Sandbox
+│   └── eda.ipynb               # Exploratory Data Analysis & Discovery
+│
+├── 📦 models/                  # Artifact Store
+│   └── production_model/       # Serialized Pipeline (Scaler + Encoder + Model)
+│
+├── 🧪 tests/                   # Quality Assurance
+│   └── test_data_processing.py # Unit Tests via Pytest
+│
+├── ⚙️ .github/workflows/       # CI/CD Automation
+│   └── ci.yml                  # Github Actions Pipeline
+│
+├── 📑 final_report.md          # Comprehensive Technical Report
+└── 📄 requirements.txt         # Dependency Lockfile
 ```
 
 ---
@@ -122,25 +147,63 @@ The `src/data_processing.py` module is designed to accept local paths. Download 
 
 ## 5. 📈 Dashboard & Visual Outputs
 
-### Transaction Volume Analysis
+A comprehensive visual analysis drives our feature engineering strategy.
+
+### 📅 Temporal & Volume Analysis
+
 <div align="center">
-  <img src="dashboard/daily_transaction_volume.png" width="800">
-  <br>
-  <i>Fig 1: Temporal analysis revealing cyclical transaction peaks.</i>
+  <table>
+    <tr>
+      <td align="center">
+        <img src="dashboard/daily_transaction_volume.png" width="400">
+        <br><b>Fig 1: Daily Transaction Volume</b><br>
+        <i>Identifies seasonal peaks and activity cycles.</i>
+      </td>
+      <td align="center">
+        <img src="dashboard/hourly_transaction_distribution.png" width="400">
+        <br><b>Fig 2: Hourly Activity Heatmap</b><br>
+        <i>Pinpoints peak operating hours for credit demand.</i>
+      </td>
+    </tr>
+  </table>
 </div>
 
-### Feature Correlation Matrix
+### 💰 Financial & Product Analysis
+
 <div align="center">
-  <img src="dashboard/feature_correlation_matrix.png" width="600">
-  <br>
-  <i>Fig 2: Heatmap confirming the strong collinearity between Frequency and Monetary value.</i>
+  <table>
+    <tr>
+      <td align="center">
+        <img src="dashboard/amount_by_product_category.png" width="400">
+        <br><b>Fig 3: Monetary Value by Product</b><br>
+        <i>Shows high-value categories driving credit usage.</i>
+      </td>
+      <td align="center">
+        <img src="dashboard/top_product_channel_counts.png" width="400">
+        <br><b>Fig 4: Channel Distribution</b><br>
+        <i>Highlights the dominance of specific transaction channels.</i>
+      </td>
+    </tr>
+  </table>
 </div>
 
-### Fraud Distribution
+### 🔍 Risk & Correlation
+
 <div align="center">
-  <img src="dashboard/fraud_distribution_summary.png" width="600">
-  <br>
-  <i>Fig 3: Channel-specific risk concentration.</i>
+  <table>
+    <tr>
+      <td align="center">
+        <img src="dashboard/feature_correlation_matrix.png" width="400">
+        <br><b>Fig 5: Feature Correlation Matrix</b><br>
+        <i>Validate collinearity between Frequency and Monetary totals.</i>
+      </td>
+      <td align="center">
+        <img src="dashboard/fraud_distribution_summary.png" width="400">
+        <br><b>Fig 6: Fraud Risk Distribution</b><br>
+        <i>Visualizes known fraud concentration across segments.</i>
+      </td>
+    </tr>
+  </table>
 </div>
 
 ---
