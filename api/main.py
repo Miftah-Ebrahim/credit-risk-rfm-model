@@ -2,11 +2,11 @@ from fastapi import FastAPI, HTTPException
 from api.schemas import CustomerData, PredictionResponse
 from src.predict import predict_risk, load_artifacts
 
-app = FastAPI(title="RFM Credit Risk API")
+app = FastAPI(title="Credit Risk API")
 
 
 @app.on_event("startup")
-def startup_event():
+def startup():
     load_artifacts()
 
 
@@ -18,7 +18,6 @@ def health():
 @app.post("/predict", response_model=PredictionResponse)
 def predict(data: CustomerData):
     try:
-        result = predict_risk(data.dict())
-        return result
+        return predict_risk(data.dict())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(500, str(e))

@@ -7,9 +7,7 @@ class CustomerData(BaseModel):
     Monetary_Total: float = Field(..., ge=0)
     Monetary_Mean: float = Field(..., ge=0)
     Monetary_Std: float = Field(..., ge=0)
-    ChannelId: str = Field(
-        ..., description="Channel ID used for transactions (e.g. ChannelId_1)"
-    )
+    ChannelId: str = Field(...)
 
 
 class PredictionResponse(BaseModel):

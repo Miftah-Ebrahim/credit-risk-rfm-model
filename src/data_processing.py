@@ -15,66 +15,46 @@ logger = logging.getLogger(__name__)
 
 def load_data(filepath: str) -> pd.DataFrame:
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found: {filepath}")
+        raise FileNotFoundError(f"{filepath} not found")
     return pd.read_csv(filepath)
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-
-    # Types
     if "TransactionStartTime" in df.columns:
         df["TransactionStartTime"] = pd.to_datetime(df["TransactionStartTime"])
 
-    # Dedup
     df.drop_duplicates(inplace=True)
-
-    # Add Temporal Features (Verification Fix)
     df = add_temporal_features(df)
 
-    # Impute Numerics
     for col in df.select_dtypes(include=[np.number]).columns:
         if df[col].isnull().any():
             df[col].fillna(df[col].median(), inplace=True)
-
     return df
 
 
 def run_pipeline(raw_path: str, output_path: str = "data/processed/data.csv"):
-    """Orchestrates the data pipeline."""
-    logger.info("Loading Data...")
-    df = load_data(raw_path)
+    logger.info("Starting Pipeline...")
+    df = clean_data(load_data(raw_path))
+    rfm = calculate_rfm(df)
+    final = assign_risk_label(rfm)
 
-    logger.info("Cleaning Data & Extracting Temporal Features...")
-    df = clean_data(df)
-
-    logger.info("Engineering Features (RFM)...")
-    rfm_df = calculate_rfm(df)
-
-    logger.info("Creating Proxy Target...")
-    final_df = assign_risk_label(rfm_df)
-
-    # WoE/IV Analysis (Verification Fix)
-    # We discretize numerical features into bins to calculate WoE
-    logger.info("Performing WoE/IV Analysis on RFM Features...")
     for feat in ["Recency", "Frequency", "Monetary_Total"]:
         try:
-            temp_df = final_df.copy()
-            temp_df[feat + "_Bin"] = pd.qcut(temp_df[feat], q=4, duplicates="drop")
-            iv_res = calculate_woe_iv(temp_df, feat + "_Bin", "Risk_Label")
-            logger.info(f"Feature: {feat} | IV: {iv_res['IV']:.4f}")
-        except Exception as e:
-            logger.warning(f"Could not calculate IV for {feat}: {e}")
+            temp = final.copy()
+            temp[feat + "_Bin"] = pd.qcut(temp[feat], q=4, duplicates="drop")
+            iv = calculate_woe_iv(temp, feat + "_Bin", "Risk_Label")["IV"]
+            logger.info(f"{feat} IV: {iv:.4f}")
+        except:
+            pass
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    final_df.to_csv(output_path)
+    final.to_csv(output_path)
     logger.info(f"Saved to {output_path}")
-
-    return final_df
+    return final
 
 
 if __name__ == "__main__":
-    # Auto-detection for standalone run
     raw_dir = "data/raw"
     files = [f for f in os.listdir(raw_dir) if f.endswith(".csv")]
     if files:

@@ -1,180 +1,63 @@
 ﻿
-# 💳 Credit Risk Probability Model (RFM-based)
+# Credit Risk Model (RFM & Alternative Data)
 
-![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=github) ![Python](https://img.shields.io/badge/Python-3.9-blue?style=for-the-badge&logo=python) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker) ![MLflow](https://img.shields.io/badge/MLflow-Tracking-blueviolet?style=for-the-badge&logo=mlflow) ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square) ![Python 3.9](https://img.shields.io/badge/Python-3.9-blue?style=flat-square) ![MLflow](https://img.shields.io/badge/MLflow-Tracking-blueviolet?style=flat-square) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square)
 
-> **"Turning Behavior into Creditworthiness"** - A production-grade Machine Learning pipeline for the unbanked.
-
----
-
-## 📑 Table of Contents
-*   [Executive Summary](#-executive-summary)
-*   [Credit Scoring Business Understanding](#-credit-scoring-business-understanding)
-*   [Methodological Approach](#-methodological-approach)
-*   [Project Structure](#-project-structure)
-*   [Installation & Usage](#-installation--usage)
-*   [API Documentation](#-api-documentation)
-*   [Visualizations](#-data-visualization)
-*   [License](#-license)
+An end-to-end Machine Learning pipeline for assessing creditworthiness using alternative data. Uses **Recency, Frequency, Monetary (RFM)** analysis and **Unsupervised Learning** (K-Means) to create a proxy target variable for supervised training.
 
 ---
 
-## Executive Summary
+## 🏗️ Architecture
 
-This repository hosts an end-to-end **Machine Learning System** designed to estimate credit risk for Buy-Now-Pay-Later (BNPL) services. By analyzing transactional *Recency, Frequency, and Monetary (RFM)* patterns, we construct a data-driven proxy for creditworthiness, enabling financial inclusion for users without traditional credit histories.
-
-**Key Capabilities:**
-*   **Automatic Feature Engineering**: Extracts temporal profiles and aggregates user stats.
-*   **Unsupervised Labeling**: Uses K-Means to identify high-risk cohorts.
-*   **Explainable AI**: Deploys Logistic Regression (for auditors) and Gradient Boosting (for performance).
-*   **Production Ready**: Dockerized REST API with Pydantic validation.
-
----
-
-## 💼 Credit Scoring Business Understanding
-
-### Basel II Capital Accord Alignment
-This project strictly adheres to the **Basel II Internal Ratings-Based (IRB)** approach. We ensure:
-*   **Transparency**: No "black box" magic; inputs are clear behavioral metrics.
-*   **Auditability**: Every scoring decision is logged and reproducible.
-
-### The Proxy Target Strategy
-**Problem**: How do you train a model without historic default labels (The Cold Start Problem)?
-**Solution**: We hypothesize that *behavior predicts risk*.
-> "A customer who transacts frequently and consistently (High F, Low R) is likely to repay."
-
-We mathematically formalize this using **RFM Analysis** and unsupervised clustering to generate our ground truth.
-
-### Model Trade-offs
-We balance **Regulatory Compliance** with **Predictive Power**:
-*   **Logistic Regression**: Preferred for its perfect explainability (Scorecards).
-*   **Gradient Boosting**: Used for challenger models to capture non-linear risk factors.
+1.  **Ingestion**: Raw transaction logs.
+2.  **Feature Store**: `src/features.py` extracts temporal profiles, categorical modes (`ChannelId`), and RFM stats.
+3.  **Labeling**: `src/features.py` uses **3-Cluster K-Means** to identify high-risk behaviors (High Recency, Low Activity).
+4.  **Training**: `src/train.py` builds an **sklearn Pipeline** (Scaler + Encoder + Classifier) tracked via **MLflow**.
+5.  **Inference**: `src/predict.py` loads the production model via MLflow Native Loading.
+6.  **API**: `api/main.py` serves predictions via FastAPI.
 
 ---
 
-## 🔬 Methodological Approach
+## 🚀 Quick Start
 
-```mermaid
-graph LR
-    A[Raw Transactions] -->|Cleaning| B[Data Pipeline]
-    B -->|Feature Eng| C{RFM Analysis}
-    C -->|Clustering| D[Proxy Labels]
-    C -->|WoE / IV| E[Feature Selection]
-    D --> F[Training]
-    E --> F
-    F -->|Log Reg / XGB| G[Model Artifacts]
-    G -->|Docker| H[REST API]
-```
-
-1.  **Ingest**: Load raw CSV logs.
-2.  **Process**: Clean nulls, extract temporal features (Hour/Day), compute RFM stats.
-3.  **Label**: Cluster users into `Good` vs `Bad` risk buckets.
-4.  **Train**: Fit models using `scikit-learn` pipelines.
-5.  **Evaluate**: Track Accuracy, Precision, Recall, and AUC via **MLflow**.
-6.  **Serve**: Expose predictions via **FastAPI**.
-
----
-
-## 📂 Project Structure
-
-```bash
-.
-├── api/                    #  The REST API
-│   ├── main.py             # FastAPI App
-│   └── schemas.py          # Pydantic Models
-├── data/                   # 💾 Data Lake
-│   ├── raw/                # Original Transaction Logs
-│   └── processed/          # Cleaned & Featurized Parquet/CSV
-├── docker/                 # 🐳 DevOps Configs
-│   ├── Dockerfile          # Container Definition
-│   └── docker-compose.yml  # Orchestration
-├── src/                    # 🧠 The Brains
-│   ├── data_processing.py  # Pipeline Orchestrator
-│   ├── features.py         # RFM & WoE Calculations
-│   ├── train.py            # Training & MLflow Logging
-│   ├── predict.py          # Inference Engine
-│   └── utils.py            # Helpers
-├── tests/                  # 🛡️ Quality Assurance
-│   └── test_data_processing.py
-└── final_report.md         # 📝 The Detailed Report
-```
-
----
-
-## 💻 Installation & Usage
-
-### Option A: The Docker Way (Recommended)
-**Run the full stack in one command:**
+### Docker (Recommended)
 ```bash
 docker-compose -f docker/docker-compose.yml up --build
-```
-> The API will be live at `http://localhost:8000/docs`
-
-### Option B: The Local Way
-1.  **Clone & Install**
-    ```bash
-    git clone https://github.com/Miftah-Ebrahim/credit-risk-rfm-model.git
-    pip install -r requirements.txt
-    ```
-2.  **Run Pipeline**
-    ```bash
-    python src/data_processing.py
-    ```
-3.  **Train Model**
-    ```bash
-    python src/train.py
-    ```
-4.  **Start API**
-    ```bash
-    uvicorn api.main:app --reload
-    ```
-
----
-
-## 🔌 API Documentation
-
-Our API is strictly typed. Send a POST request to `/predict`:
-
-**Input:**
-```json
-{
-  "Recency": 10,
-  "Frequency": 5,
-  "Monetary_Total": 1500.0,
-  "Monetary_Mean": 300.0,
-  "Monetary_Std": 50.0
-}
+# API: http://localhost:8000/docs
 ```
 
-**Output:**
-```json
-{
-  "risk_probability": 0.04,
-  "is_high_risk": false,
-  "status": "success"
-}
+### Local Development
+```bash
+pip install -r requirements.txt
+python -m src.data_processing  # ETL
+python -m src.train            # Train & Register
+uvicorn api.main:app --reload  # Serve
 ```
 
 ---
 
-## 📊 Data Visualization
+## 🛠️ Components
 
-Detailed EDA is available in `notebooks/eda.ipynb`.
-*   [Daily Transaction Volume](dashboard/daily_transaction_volume.png)
-*   [Fraud Distribution](dashboard/fraud_distribution_summary.png)
-*   [Correlation Matrix](dashboard/feature_correlation_matrix.png)
+| Component | Description |
+| :--- | :--- |
+| **`src/features.py`** | Pure functional feature logic (RFM, WoE, Temporal). |
+| **`src/data_processing.py`** | Minimal orchestrator for Data cleaning & preparation. |
+| **`src/train.py`** | Pipeline Construction, GridSearch, MLflow Logging. |
+| **`src/predict.py`** | Model Loader & Inference Wrapper. |
+| **`api/`** | FastAPI endpoints and strict Pydantic schemas. |
+
+---
+
+## 📊 Results
+
+| Model | AUC | F1-Score | Status |
+| :--- | :--- | :--- | :--- |
+| **Gradient Boosting** | **1.000** | **1.000** | 🏆 Production |
+| **Logistic Regression** | 0.999 | 0.978 | Challenger |
+
+*Note: High scores reflect the nature of proxy modeling where ground truth is derived from features.*
 
 ---
 
 ## ⚖️ License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-<p align="center">
-  <b>Built by Miftah collab  with  AI❤️ future Agentic AI Engineer</b><br>
-  <i>Validating trust through code.</i>
-</p>
-
-
+MIT License.
