@@ -126,7 +126,7 @@ We employ **K-Means Clustering ($k=3$)**:
 
 ### 🔁 MLOps & Deployment
 *   **Training**: GridSearch optimizes hyperparameters ($C$, $n\_estimators$).
-*   **Tracking**: **MLflow** logs every experiment, metric ($AUC$, $F1$), and artifact.
+*   **Tracking**: **MLflow** logs every experiment, metric ($AUC$, $F1$, $LogLoss$, $MCC$), and artifact (Confusion Matrix).
 *   **Serving**: A containerized **FastAPI** service loads the production model from the MLflow registry.
 *   **CI/CD**: GitHub Actions enforces code quality (`flake8`) and logic validity (`pytest`).
     > **Workflow Note**: All changes in this repository were strictly merged via **Pull Requests (PR)** passing automated CI checks, ensuring a stable `main` branch.

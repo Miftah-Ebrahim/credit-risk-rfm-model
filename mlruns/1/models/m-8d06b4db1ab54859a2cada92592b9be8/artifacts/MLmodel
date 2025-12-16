@@ -1,0 +1,22 @@
+artifact_path: file:C:/Users/hp/Downloads/KAIM/KAIM W4/credit-risk-rfm-model/mlruns/1/models/m-8d06b4db1ab54859a2cada92592b9be8/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+mlflow_version: 3.7.0
+model_id: m-8d06b4db1ab54859a2cada92592b9be8
+model_size_bytes: 37263
+model_uuid: m-8d06b4db1ab54859a2cada92592b9be8
+prompts: null
+run_id: 0067ce3dfb784712a0468eea56816c0e
+utc_time_created: '2025-12-16 19:39:25.685345'
