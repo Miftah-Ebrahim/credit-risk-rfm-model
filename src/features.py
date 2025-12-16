@@ -18,6 +18,9 @@ def calculate_rfm(df: pd.DataFrame) -> pd.DataFrame:
         "TransactionStartTime": lambda x: (max_date - x.max()).days,
         "TransactionId": "count",
         "Amount": ["sum", "mean", "std"],
+        "ChannelId": lambda x: x.mode()[0]
+        if not x.mode().empty
+        else x.iloc[0],  # Categorical Mode
     }
 
     customer_df = df.groupby("CustomerId").agg(agg_rules)
@@ -27,13 +30,14 @@ def calculate_rfm(df: pd.DataFrame) -> pd.DataFrame:
         "Monetary_Total",
         "Monetary_Mean",
         "Monetary_Std",
+        "ChannelId",
     ]
     customer_df["Monetary_Std"] = customer_df["Monetary_Std"].fillna(0)
 
     return customer_df
 
 
-def assign_risk_label(df: pd.DataFrame, n_clusters: int = 2) -> pd.DataFrame:
+def assign_risk_label(df: pd.DataFrame, n_clusters: int = 3) -> pd.DataFrame:
     """
     Assigns 'Risk_Label' using KMeans clustering on RFM features.
     High Risk = High Recency cluster.
@@ -46,6 +50,7 @@ def assign_risk_label(df: pd.DataFrame, n_clusters: int = 2) -> pd.DataFrame:
     df["Cluster"] = kmeans.fit_predict(scaled_data)
 
     # Heuristic: Cluster with highest avg Recency is 'High Risk' (Churned/Dormant)
+    # With 3 clusters, we still isolate the "worst" one as High Risk (1), others typically (0)
     risk_cluster = df.groupby("Cluster")["Recency"].mean().idxmax()
     df["Risk_Label"] = (df["Cluster"] == risk_cluster).astype(int)
 

@@ -1,45 +1,43 @@
-import joblib
 import pandas as pd
 import os
+import mlflow.sklearn
 
-MODEL_PATH = "models/best_model.pkl"
-SCALER_PATH = "models/scaler.pkl"
+PRODUCTION_MODEL_PATH = "models/production_model"
 
-_model = None
-_scaler = None
+_pipeline = None
 
 
 def load_artifacts():
-    """Loads model/scaler into global variables."""
-    global _model, _scaler
-    if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
-        _model = joblib.load(MODEL_PATH)
-        _scaler = joblib.load(SCALER_PATH)
-        return True
+    """Loads the MLflow pipeline from the production path."""
+    global _pipeline
+    if os.path.exists(PRODUCTION_MODEL_PATH):
+        try:
+            _pipeline = mlflow.sklearn.load_model(PRODUCTION_MODEL_PATH)
+            return True
+        except Exception as e:
+            print(f"Failed to load MLflow model: {e}")
+            return False
     return False
 
 
 def predict_risk(data: dict):
     """
     Predicts risk for a single record.
-    Data format: {Recency, Frequency, Monetary_Total, ...}
+    Data format: {Recency, Frequency, Monetary_Total, ..., ChannelId}
     """
-    if _model is None:
+    if _pipeline is None:
         if not load_artifacts():
             raise RuntimeError("Model artifacts not found.")
 
-    # Prepare
+    # Prepare DataFrame
     df = pd.DataFrame([data])
-    # Ensure column order matches training (Recency, Frequency, Monetary_Total, Monetary_Mean, Monetary_Std)
-    # Note: In production, we should enforce schema strictly.
-    cols = ["Recency", "Frequency", "Monetary_Total", "Monetary_Mean", "Monetary_Std"]
-    df = df[cols]
 
-    # Scale
-    X_scaled = _scaler.transform(df)
+    # Ensure ChannelId is string for OneHotEncoding
+    if "ChannelId" in df.columns:
+        df["ChannelId"] = df["ChannelId"].astype(str)
 
-    # Predict
-    prob = _model.predict_proba(X_scaled)[0][1]
-    is_risk = int(_model.predict(X_scaled)[0])
+    # Predict (Pipeline handles scaling/encoding)
+    prob = _pipeline.predict_proba(df)[0][1]
+    is_risk = int(_pipeline.predict(df)[0])
 
     return {"risk_probability": round(prob, 4), "is_high_risk": bool(is_risk)}
