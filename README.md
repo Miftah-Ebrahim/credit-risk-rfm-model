@@ -149,10 +149,11 @@ The `src/data_processing.py` module is designed to accept local paths. Download 
 
 **Mifta Y**
 *   **LinkedIn**: [Connect Profile](https://www.linkedin.com/in/miftah-ebrahim-b422b3364/)
-*   **Telegram**: `Miftah_deva`
+*   **Telegram**: `Miftah_dev
 
 ---
 
 <p align="center">
   <i>Built for the Future of Finance.</i>
 </p>
+
