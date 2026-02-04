@@ -211,7 +211,7 @@ A comprehensive visual analysis drives our feature engineering strategy.
 
 ## 6. 👨‍💻 Author
 
-**Mifta Y**
+**Mifta[the KEY]**
 *   **LinkedIn**: [Connect Profile](https://www.linkedin.com/in/miftah-ebrahim-b422b3364/)
 *   **Telegram**: `Miftah_dev
 
@@ -220,4 +220,5 @@ A comprehensive visual analysis drives our feature engineering strategy.
 <p align="center">
   <i>Built for the Future of Finance.</i>
 </p>
+
 
